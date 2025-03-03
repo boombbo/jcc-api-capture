@@ -9,6 +9,43 @@
 import os
 import subprocess
 from datetime import datetime
+from dotenv import load_dotenv
+from urllib.parse import quote
+
+# 加载环境变量
+load_dotenv()
+
+def get_git_remote_url():
+    """获取并更新远程仓库URL，使用token认证"""
+    try:
+        # 获取原始URL
+        result = subprocess.run("git remote get-url origin", shell=True, check=True,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              encoding='utf-8')
+        original_url = result.stdout.strip()
+        
+        # 获取环境变量
+        github_token = os.getenv("GITHUB_TOKEN")
+        gh_username = os.getenv("GH_USERNAME")
+        
+        if not github_token or not gh_username:
+            print("❌ 未找到GitHub配置，请确保.env文件中包含GITHUB_TOKEN和GH_USERNAME")
+            return None
+            
+        # 构建带token的URL
+        if "https://" in original_url:
+            # 对token进行URL编码
+            encoded_token = quote(github_token)
+            token_url = original_url.replace(
+                "https://", 
+                f"https://{gh_username}:{encoded_token}@"
+            )
+            return original_url, token_url
+            
+        return original_url, original_url
+    except Exception as e:
+        print(f"❌ 获取仓库URL失败: {str(e)}")
+        return None, None
 
 def run_command(command):
     """运行命令并返回结果"""
@@ -19,6 +56,18 @@ def run_command(command):
         return True, result.stdout
     except subprocess.CalledProcessError as e:
         return False, str(e)
+
+def setup_git_config():
+    """设置Git配置"""
+    gh_username = os.getenv("GH_USERNAME")
+    gh_email = os.getenv("GH_EMAIL")
+    
+    if gh_username and gh_email:
+        run_command(f'git config --global user.name "{gh_username}"')
+        run_command(f'git config --global user.email "{gh_email}"')
+        print("✅ Git用户信息已配置")
+    else:
+        print("⚠️ 未找到Git用户配置信息")
 
 def update_project(commit_message="更新代码"):
     """
@@ -32,14 +81,25 @@ def update_project(commit_message="更新代码"):
         print("项目更新工具")
         print("=" * 50)
         
-        # 1. 添加所有更改
+        # 1. 设置Git配置
+        setup_git_config()
+        
+        # 2. 获取并配置远程仓库URL
+        original_url, token_url = get_git_remote_url()
+        if not original_url or not token_url:
+            return False
+            
+        if token_url != original_url:
+            run_command(f'git remote set-url origin "{token_url}"')
+        
+        # 3. 添加所有更改
         print("\n添加更改...")
         success, output = run_command("git add .")
         if not success:
             print(f"❌ 添加失败: {output}")
             return False
         
-        # 2. 检查是否有更改
+        # 4. 检查是否有更改
         success, status = run_command("git status --porcelain")
         if not success:
             print(f"❌ 检查状态失败: {status}")
@@ -49,7 +109,7 @@ def update_project(commit_message="更新代码"):
             print("✨ 没有需要更新的内容")
             return True
         
-        # 3. 提交更改
+        # 5. 提交更改
         print("\n提交更改...")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         full_message = f"{commit_message} ({timestamp})"
@@ -59,13 +119,17 @@ def update_project(commit_message="更新代码"):
             return False
         print("✅ 提交成功")
         
-        # 4. 推送到GitHub
+        # 6. 推送到GitHub
         print("\n推送到GitHub...")
         success, output = run_command("git push")
         if not success:
             print(f"❌ 推送失败: {output}")
             return False
         print("✅ 推送成功")
+        
+        # 7. 恢复原始URL
+        if token_url != original_url:
+            run_command(f'git remote set-url origin "{original_url}"')
         
         print("\n" + "=" * 50)
         print("✨ 更新完成！GitHub Actions将自动处理版本更新和发布。")
@@ -79,4 +143,4 @@ def update_project(commit_message="更新代码"):
 
 if __name__ == "__main__":
     # 可以自定义提交信息
-    update_project("更新项目代码") 
+    update_project("更新项目代码")
