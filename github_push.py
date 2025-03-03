@@ -447,6 +447,76 @@ jobs:
 """)
     print("✅ GitHub Actions工作流文件创建成功")
 
+def process_github_workflow(repo_name="jcc-api-capture", 
+                          description="腾讯JCC API接口监听与分析工具",
+                          is_private=False,
+                          commit_message="初始提交",
+                          branch="main",
+                          setup_pages=False):
+    """
+    整合的GitHub工作流程函数
+    
+    参数:
+    - repo_name: 仓库名称
+    - description: 仓库描述
+    - is_private: 是否为私有仓库
+    - commit_message: 提交消息
+    - branch: 分支名称
+    - setup_pages: 是否设置GitHub Pages
+    
+    返回:
+    - 仓库URL或None（如果失败）
+    """
+    try:
+        print("=" * 50)
+        print("GitHub仓库创建和代码推送工具")
+        print("=" * 50)
+        
+        # 1. 检查Git安装
+        if not check_git_installed():
+            print("请先安装Git: https://git-scm.com/downloads")
+            return None
+        
+        # 2. 设置Git配置
+        setup_git_config()
+        
+        # 3. 初始化Git仓库
+        init_git_repo()
+        
+        # 4. 创建必要文件
+        create_readme_if_not_exists()
+        ensure_gitignore_has_env()
+        create_workflow_file()
+        
+        # 5. Git操作
+        add_files_to_git()
+        commit_changes(commit_message)
+        
+        # 6. 创建并推送到GitHub
+        repo_url = create_github_repo(repo_name, description, is_private)
+        if not repo_url:
+            print("❌ 创建GitHub仓库失败")
+            return None
+            
+        push_to_github(branch)
+        
+        # 7. 设置GitHub Pages（如果需要）
+        if setup_pages:
+            setup_github_pages()
+        
+        print("\n" + "=" * 50)
+        print(f"✨ 成功! 仓库已创建并推送到: {repo_url}")
+        print("=" * 50)
+        
+        # 8. 打开浏览器访问仓库
+        webbrowser.open(repo_url)
+        
+        return repo_url
+        
+    except Exception as e:
+        print(f"❌ 工作流程执行失败: {str(e)}")
+        return None
+
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description="GitHub仓库创建和代码推送工具")
@@ -459,52 +529,15 @@ def main():
     
     args = parser.parse_args()
     
-    print("=" * 50)
-    print("GitHub仓库创建和代码推送工具")
-    print("=" * 50)
-    
-    # 检查Git是否安装
-    if not check_git_installed():
-        print("请先安装Git: https://git-scm.com/downloads")
-        sys.exit(1)
-    
-    # 设置Git配置
-    setup_git_config()
-    
-    # 初始化Git仓库
-    init_git_repo()
-    
-    # 确保README.md存在
-    create_readme_if_not_exists()
-    
-    # 确保.gitignore包含.env
-    ensure_gitignore_has_env()
-    
-    # 创建GitHub Actions工作流文件
-    create_workflow_file()
-    
-    # 添加文件到Git
-    add_files_to_git()
-    
-    # 提交更改
-    commit_changes(args.message)
-    
-    # 创建GitHub仓库
-    repo_url = create_github_repo(args.name, args.desc, args.private)
-    
-    # 推送到GitHub
-    push_to_github(args.branch)
-    
-    # 设置GitHub Pages
-    if args.setup_pages:
-        setup_github_pages()
-    
-    print("\n" + "=" * 50)
-    print(f"✨ 成功! 仓库已创建并推送到: {repo_url}")
-    print("=" * 50)
-    
-    # 打开浏览器访问仓库
-    webbrowser.open(repo_url)
+    # 使用整合的工作流程函数
+    process_github_workflow(
+        repo_name=args.name,
+        description=args.desc,
+        is_private=args.private,
+        commit_message=args.message,
+        branch=args.branch,
+        setup_pages=args.setup_pages
+    )
 
 if __name__ == "__main__":
     main() 
