@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.env
+.venv
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 数据目录
+data/*
+!data/README.md
+!data/crawler
+data/crawler/*
+!data/crawler/README.md
+!data/crawler/.gitkeep
+
+# 保留空目录结构
+!data/crawler/analysis/
+!data/crawler/raw_requests/
+!data/crawler/responses/
+!data/crawler/responses/game_api/
+!data/crawler/responses/system_api/
+!data/crawler/responses/static/
+!data/crawler/responses/other/
+
+# 但忽略目录中的内容
+data/crawler/analysis/*
+!data/crawler/analysis/.gitkeep
+data/crawler/raw_requests/*
+!data/crawler/raw_requests/.gitkeep
+data/crawler/responses/game_api/*
+!data/crawler/responses/game_api/.gitkeep
+data/crawler/responses/system_api/*
+!data/crawler/responses/system_api/.gitkeep
+data/crawler/responses/static/*
+!data/crawler/responses/static/.gitkeep
+data/crawler/responses/other/*
+!data/crawler/responses/other/.gitkeep
+
+# 忽略数据文件
+data/crawler/api/*
+!data/crawler/api/.gitkeep
+
+# 忽略备份文件
+data/backups/*
+!data/backups/.gitkeep
+
+# 忽略日志
+logs/*
+!logs/.gitkeep

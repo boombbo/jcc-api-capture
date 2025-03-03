@@ -1,0 +1,34 @@
+# 核心依赖
+playwright==1.40.0
+aiohttp>=3.8.0
+asyncio==3.4.3
+
+# 数据处理
+ujson>=5.0.0
+numpy>=1.21.0
+opencv-python>=4.5.0
+paddleocr>=2.6.0
+
+# GUI
+PyQt6>=6.4.0
+PyQt5>=5.15.0
+
+# 系统
+pywin32>=228
+
+# 工具
+python-json-logger>=2.0.0
+pathlib>=1.0.1
+typing-extensions>=4.0.0
+schedule>=1.1.0
+python-dotenv>=1.0.0
+PyGithub>=2.1.1
+
+# 开发工具
+pytest>=7.0.0
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.950
+
+# 新增依赖
+aiofiles==23.2.1
