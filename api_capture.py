@@ -23,8 +23,6 @@ import aiofiles
 from utilities import (
     PathManager, 
     FileManager, 
-    APIDataManager, 
-    LogManager, 
     ROOT_DIR,
     DATA_DIR,
     API_DIR
@@ -61,35 +59,30 @@ class APICapture:
                 "description": "英雄数据",
                 "required": True,
                 "urls": [],
-                "save_dir": "hero",
             },
             "race": {
                 "pattern": r"race\.js",
                 "description": "种族数据",
                 "required": True,
                 "urls": [],
-                "save_dir": "synergy",
             },
             "job": {
                 "pattern": r"job\.js",
                 "description": "职业数据",
                 "required": True,
                 "urls": [],
-                "save_dir": "synergy",
             },
             "trait": {
                 "pattern": r"trait\.js",
                 "description": "羁绊数据",
                 "required": True,
                 "urls": [],
-                "save_dir": "synergy",
             },
             "hex": {
                 "pattern": r"hex\.js",
                 "description": "海克斯数据",
                 "required": True,
                 "urls": [],
-                "save_dir": "hex",
             },
             "equip": {
                 "pattern": r"(equip\.js|equipment\.js|items\.js)",
@@ -101,7 +94,6 @@ class APICapture:
                     "https://jcc.qq.com/images/lol/act/jkzlk/js/equip/equip.js",
                 ],
                 "selectors": [".equipment-list", ".equip-list", "#equipment-container"],
-                "save_dir": "equipment",
             },
             "lineup": {
                 "pattern": r"lineup_detail_total\.json",
@@ -109,28 +101,24 @@ class APICapture:
                 "required": True,
                 "urls": [],
                 "versions": {"4": "天选福星", "13": "双城传说II"},
-                "save_dir": "lineup",
             },
             "version": {
                 "pattern": r"version.*\.js",
                 "description": "版本数据",
                 "required": False,
                 "urls": [],
-                "save_dir": "common",
             },
             "rank": {
                 "pattern": r"rank\.js",
                 "description": "段位数据",
                 "required": True,
                 "urls": [],
-                "save_dir": "common",
             },
             "other": {
                 "pattern": r".*",  # 捕获其他所有API
                 "description": "其他API数据",
                 "required": False,
                 "urls": [],
-                "save_dir": "misc", 
             }
         }
 
@@ -139,14 +127,14 @@ class APICapture:
             "4": {
                 "name": "天选福星",
                 "mode": "4",
-                "base_url": "/4/14.13.6-S14/",
+                "base_url": "/4/14.14.7-S14/",
                 "lineup_url": "/m14/11/4/",
                 "selector": ".tab-bar a:nth-child(1)",
             },
             "13": {
                 "name": "双城传说II",
                 "mode": "13",
-                "base_url": "/13/14.13.6-S14/",
+                "base_url": "/13/14.14.7-S14/",
                 "lineup_url": "/m14/11/13/",
                 "selector": ".tab-bar a:nth-child(2)",
             },
@@ -181,16 +169,11 @@ class APICapture:
         
         步骤:
         1. 创建版本目录: 为每个游戏版本创建目录
-        2. 创建API类型目录: 为每种API类型创建子目录
+        2. 不再创建API类型子目录: 直接在版本目录下保存文件
         """
         # 确保版本目录存在
         for version_dir in self.version_dirs.values():
             PathManager.ensure_dir(version_dir)
-            
-            # 为每个版本创建API类型子目录
-            for api_info in self.api_config.values():
-                save_dir = api_info.get("save_dir", "misc")
-                PathManager.ensure_dir(version_dir / save_dir)
                 
         # 日志目录
         PathManager.ensure_dir(self.log_dir)
@@ -296,53 +279,73 @@ fetch("{url}", {options_str})
 
     async def extract_request_info(self, request):
         """
-        功能: 提取请求的关键信息
+        功能: 提取请求信息
         
         步骤:
-        1. 获取基本请求信息: URL、方法、头信息
-        2. 解析查询参数: 提取URL中的查询参数
-        3. 获取请求体: 如果是POST请求，提取请求体
-        4. 生成不同格式的请求数据: 包括cURL和fetch
+        1. 提取基本请求信息: URL、方法、头信息等
+        2. 提取查询参数和POST数据: 解析URL和请求体
+        3. 生成curl和fetch命令: 用于调试和复现请求
+        4. 检测API类型和版本: 根据URL模式判断
         
         返回值:
-        - 返回请求信息的字典
+        - 包含请求详细信息的字典
         """
         url = request.url
         method = request.method
         headers = request.headers
         
-        # 解析URL获取查询参数
+        # 提取查询参数
         parsed_url = urlparse(url)
         query_params = parse_qs(parsed_url.query)
         
-        # 获取POST数据
+        # 提取POST数据
         post_data = None
-        if method == "POST" and hasattr(request, "post_data"):
+        if method == "POST":
             try:
-                post_data = request.post_data
+                post_data = await request.post_data()
             except:
-                post_data = None
+                pass
         
-        # 生成cURL命令
+        # 生成curl和fetch命令
         curl_command = await self.generate_curl(request)
-        
-        # 生成fetch API调用
         fetch_browser = await self.generate_fetch(request, use_node=False)
         fetch_node = await self.generate_fetch(request, use_node=True)
         
-        # 构建请求信息字典
+        # 检测API类型
+        api_type = "other"
+        api_description = "其他API数据"
+        
+        for type_name, api_info in self.api_config.items():
+            if re.search(api_info["pattern"], url):
+                api_type = type_name
+                api_description = api_info.get("description", "未知API")
+                break
+        
+        # 检测版本
+        version = self._detect_version(url)
+        
+        # 特殊处理阵容数据
+        if api_type == "lineup" and "lineup_detail_total.json" in url:
+            # 检查URL中是否包含版本特定的路径
+            if "/m14/11/4/" in url:
+                version = "4"  # 天选福星
+            elif "/m14/11/13/" in url:
+                version = "13"  # 双城传说II
+        
+        # 构建请求信息
         request_info = {
             "url": url,
             "method": method,
-            "headers": dict(headers),
+            "headers": headers,
             "query_params": query_params,
             "post_data": post_data,
             "curl_command": curl_command,
             "fetch_browser": fetch_browser,
             "fetch_node": fetch_node,
             "timestamp": datetime.now().isoformat(),
-            "page_url": None,  # 将在捕获响应时填充
-            "version": self._detect_version(url)  # 检测版本
+            "version": version,
+            "api_type": api_type,
+            "api_description": api_description
         }
         
         return request_info
@@ -358,6 +361,13 @@ fetch("{url}", {options_str})
         返回值:
         - 版本代码 ("4", "13" 或 "common")
         """
+        # 检查URL中是否包含特定版本的关键词
+        if "mode4s14" in url or "jkimg/mode4s14" in url or "s4_" in url:
+            return "4"  # 天选福星
+        elif "mode13s14" in url or "jkimg/mode13s14" in url or "s13_" in url:
+            return "13"  # 双城传说II
+            
+        # 检查URL中是否包含版本号路径
         for version_code, version_info in self.version_config.items():
             base_url = version_info["base_url"]
             if base_url in url:
@@ -398,55 +408,31 @@ fetch("{url}", {options_str})
             headers = response.headers
             
             # 尝试获取响应体
-            content_type = headers.get("content-type", "")
-            response_body = None
+            body = None
+            content_type = headers.get("content-type", "").lower()
             
             if "json" in content_type or "javascript" in content_type:
                 try:
-                    response_body = await response.json()
+                    body = await response.json()
                 except:
-                    try:
-                        text = await response.text()
-                        response_body = text
-                    except:
-                        response_body = "<无法解析的响应体>"
-            elif "text" in content_type:
-                response_body = await response.text()
+                    pass
             
-            response_info = {
+            # 添加响应信息到请求数据
+            request_info["response"] = {
                 "status": status,
-                "headers": dict(headers),
-                "body": response_body
+                "headers": headers,
+                "body": body
             }
-            
-            request_info["response"] = response_info
-            
-            # 检查是否匹配API配置
-            api_matched = False
-            for api_key, api_info in self.api_config.items():
-                if re.search(api_info["pattern"], url):
-                    request_info["api_type"] = api_key
-                    request_info["api_description"] = api_info["description"]
-                    request_info["save_dir"] = api_info["save_dir"]
-                    if url not in api_info["urls"]:
-                        api_info["urls"].append(url)
-                    api_matched = True
-                    break
-            
-            # 如果没有匹配到任何API类型，归类为"other"
-            if not api_matched:
-                request_info["api_type"] = "other"
-                request_info["api_description"] = "其他API数据"
-                request_info["save_dir"] = "misc"
             
             # 添加到请求数据列表
             self.requests_data.append(request_info)
             
-            # 按页面分类
-            page_url = request_info["page_url"] or "unknown"
-            if page_url not in self.page_requests:
-                self.page_requests[page_url] = []
-            self.page_requests[page_url].append(request_info)
+            # 添加到页面请求列表
+            page_url = request_info["page_url"]
+            if page_url:
+                if page_url not in self.page_requests:
+                    self.page_requests[page_url] = []
+                self.page_requests[page_url].append(request_info)
             
             # 按版本分类
             version = request_info["version"]
@@ -507,7 +493,14 @@ fetch("{url}", {options_str})
                 
             version_name = next((info["name"] for code, info in self.version_config.items() 
                                 if code == version), "通用")
-            version_dir = self.version_dirs.get(version, self.api_base_dir / "common")
+            
+            # 确定版本目录
+            if version == "4":
+                version_dir = self.version_dirs["4"]  # 天选福星
+            elif version == "13":
+                version_dir = self.version_dirs["13"]  # 双城传说II
+            else:
+                version_dir = self.api_base_dir / "common"  # 通用API
             
             # 按API类型分组
             api_type_requests = {}
@@ -519,15 +512,12 @@ fetch("{url}", {options_str})
             
             # 保存每种API类型的数据
             for api_type, type_requests in api_type_requests.items():
-                # 获取保存目录
-                save_dir = self.api_config.get(api_type, {}).get("save_dir", "misc")
-                
-                # 构建完整保存路径
-                save_path = version_dir / save_dir
+                # 构建完整保存路径 - 直接保存到版本目录下
+                save_path = version_dir
                 PathManager.ensure_dir(save_path)
                 
-                # 只保存JSON格式
-                json_file = save_path / f"{api_type}_{self.timestamp}.json"
+                # 只保存JSON格式，使用api_前缀
+                json_file = save_path / f"api_{api_type}.json"
                 FileManager.save_json(type_requests, json_file)
                 
                 self.logger.info(f"版本 {version_name} 的 {api_type} API数据已保存")

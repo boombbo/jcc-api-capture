@@ -19,10 +19,15 @@ def get_git_remote_url():
     """获取并更新远程仓库URL，使用token认证"""
     try:
         # 获取原始URL
-        result = subprocess.run("git remote get-url origin", shell=True, check=True,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              encoding='utf-8')
-        original_url = result.stdout.strip()
+        try:
+            result = subprocess.run("git remote get-url origin", shell=True, check=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                encoding='utf-8')
+            original_url = result.stdout.strip()
+        except subprocess.CalledProcessError:
+            print("⚠️ 无法获取远程仓库URL，将使用默认URL")
+            # 使用默认URL
+            original_url = "https://github.com/boombbo/jcc-api-capture.git"
         
         # 获取环境变量
         github_token = os.getenv("GITHUB_TOKEN")
@@ -30,7 +35,7 @@ def get_git_remote_url():
         
         if not github_token or not gh_username:
             print("❌ 未找到GitHub配置，请确保.env文件中包含GITHUB_TOKEN和GH_USERNAME")
-            return None
+            return None, None
             
         # 构建带token的URL
         if "https://" in original_url:
@@ -44,7 +49,7 @@ def get_git_remote_url():
             
         return original_url, original_url
     except Exception as e:
-        print(f"❌ 获取仓库URL失败: {str(e)}")
+        print(f"❌ 处理仓库URL时发生错误: {str(e)}")
         return None, None
 
 def run_command(command):
@@ -86,10 +91,7 @@ def update_project(commit_message="更新代码"):
         
         # 2. 获取并配置远程仓库URL
         original_url, token_url = get_git_remote_url()
-        if not original_url or not token_url:
-            return False
-            
-        if token_url != original_url:
+        if original_url and token_url and token_url != original_url:
             run_command(f'git remote set-url origin "{token_url}"')
         
         # 3. 添加所有更改
@@ -124,11 +126,16 @@ def update_project(commit_message="更新代码"):
         success, output = run_command("git push")
         if not success:
             print(f"❌ 推送失败: {output}")
-            return False
+            # 尝试使用 -u 参数
+            print("尝试使用 -u 参数...")
+            success, output = run_command("git push -u origin main")
+            if not success:
+                print(f"❌ 推送失败: {output}")
+                return False
         print("✅ 推送成功")
         
         # 7. 恢复原始URL
-        if token_url != original_url:
+        if original_url and token_url and token_url != original_url:
             run_command(f'git remote set-url origin "{original_url}"')
         
         print("\n" + "=" * 50)
