@@ -35,22 +35,24 @@ def get_git_remote_url():
         
         if not github_token or not gh_username:
             print("❌ 未找到GitHub配置，请确保.env文件中包含GITHUB_TOKEN和GH_USERNAME")
-            return None, None
+            return original_url, original_url
             
         # 构建带token的URL
         if "https://" in original_url:
-            # 对token进行URL编码
-            encoded_token = quote(github_token)
-            token_url = original_url.replace(
+            # 对token进行URL编码，确保没有特殊字符
+            encoded_token = quote(github_token.strip())
+            # 移除URL中可能的尾部斜杠
+            clean_url = original_url.rstrip('/')
+            token_url = clean_url.replace(
                 "https://", 
-                f"https://{gh_username}:{encoded_token}@"
+                f"https://{gh_username.strip()}:{encoded_token}@"
             )
             return original_url, token_url
             
         return original_url, original_url
     except Exception as e:
         print(f"❌ 处理仓库URL时发生错误: {str(e)}")
-        return None, None
+        return original_url, original_url
 
 def run_command(command):
     """运行命令并返回结果"""
@@ -89,9 +91,9 @@ def update_project(commit_message="更新代码"):
         # 1. 设置Git配置
         setup_git_config()
         
-        # 2. 获取并配置远程仓库URL
+        # 2. 获取远程仓库URL
         original_url, token_url = get_git_remote_url()
-        if original_url and token_url and token_url != original_url:
+        if token_url != original_url:
             run_command(f'git remote set-url origin "{token_url}"')
         
         # 3. 只添加指定的脚本文件，而不是所有更改
@@ -103,7 +105,8 @@ def update_project(commit_message="更新代码"):
             "README.md",
             "requirements.txt",
             "update.py",
-            "utilities.py"
+            "utilities.py",
+            ".gitignore"
         ]
         
         # 逐个添加文件
@@ -138,22 +141,16 @@ def update_project(commit_message="更新代码"):
         success, output = run_command("git push")
         if not success:
             print(f"❌ 推送失败: {output}")
-            # 尝试使用 -u 参数
-            print("尝试使用 -u 参数...")
-            success, output = run_command("git push -u origin main")
+            print("\n尝试使用origin main...")
+            success, output = run_command("git push origin main")
             if not success:
                 print(f"❌ 推送失败: {output}")
-                # 尝试使用凭据助手
-                print("尝试使用凭据助手...")
-                run_command('git config --global credential.helper wincred')
-                success, output = run_command("git push -u origin main")
-                if not success:
-                    print(f"❌ 推送失败: {output}")
-                    return False
+                return False
+        
         print("✅ 推送成功")
         
         # 7. 恢复原始URL
-        if original_url and token_url and token_url != original_url:
+        if token_url != original_url:
             run_command(f'git remote set-url origin "{original_url}"')
         
         print("\n" + "=" * 50)

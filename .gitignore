@@ -70,3 +70,23 @@ data/backups/*
 # 忽略日志
 logs/*
 !logs/.gitkeep
+
+# 忽略特定版本的数据目录
+data/crawler/api/天选福星/
+data/crawler/api/双城传说II/
+data/crawler/api/common/
+
+# 忽略临时文件
+*.tmp
+*.bak
+*.swp
+*~
+
+# 忽略测试数据
+test_data/
+tests/data/
+
+# 忽略编译文件
+build/
+dist/
+*.egg-info/
