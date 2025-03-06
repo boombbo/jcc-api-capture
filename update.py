@@ -76,12 +76,13 @@ def setup_git_config():
     else:
         print("⚠️ 未找到Git用户配置信息")
 
-def update_project(commit_message="更新代码"):
+def update_project(commit_message="更新代码", force_push=False):
     """
     更新项目并推送到GitHub
     
     参数:
     - commit_message: 提交信息
+    - force_push: 是否强制推送
     """
     try:
         print("=" * 50)
@@ -138,13 +139,25 @@ def update_project(commit_message="更新代码"):
         
         # 6. 推送到GitHub
         print("\n推送到GitHub...")
-        success, output = run_command("git push")
+        
+        # 根据是否强制推送选择命令
+        if force_push:
+            print("使用强制推送...")
+            push_command = "git push --force origin main"
+        else:
+            push_command = "git push origin main"
+            
+        success, output = run_command(push_command)
         if not success:
             print(f"❌ 推送失败: {output}")
-            print("\n尝试使用origin main...")
-            success, output = run_command("git push origin main")
-            if not success:
-                print(f"❌ 推送失败: {output}")
+            
+            if not force_push:
+                print("\n尝试使用强制推送...")
+                success, output = run_command("git push --force origin main")
+                if not success:
+                    print(f"❌ 强制推送失败: {output}")
+                    return False
+            else:
                 return False
         
         print("✅ 推送成功")
@@ -164,5 +177,16 @@ def update_project(commit_message="更新代码"):
         return False
 
 if __name__ == "__main__":
-    # 可以自定义提交信息
-    update_project("更新项目代码")
+    import sys
+    
+    # 获取命令行参数
+    commit_message = "更新项目代码"
+    force_push = False
+    
+    if len(sys.argv) > 1:
+        commit_message = sys.argv[1]
+    
+    if len(sys.argv) > 2 and sys.argv[2].lower() in ['force', '--force', '-f', 'true']:
+        force_push = True
+    
+    update_project(commit_message, force_push)

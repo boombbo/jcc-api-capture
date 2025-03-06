@@ -19,9 +19,16 @@ if exist "venv\Scripts\activate.bat" (
 set /p commit_message=Enter commit message (press Enter for default): 
 if "!commit_message!"=="" set commit_message=Update project code
 
+set /p force_push=Force push? (y/n, default: n): 
+if /i "!force_push!"=="y" (
+    set force_arg=force
+) else (
+    set force_arg=
+)
+
 echo.
 echo Updating...
-python update.py "!commit_message!"
+python update.py "!commit_message!" !force_arg!
 
 echo.
 echo ================================================
