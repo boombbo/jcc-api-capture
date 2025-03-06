@@ -94,12 +94,24 @@ def update_project(commit_message="更新代码"):
         if original_url and token_url and token_url != original_url:
             run_command(f'git remote set-url origin "{token_url}"')
         
-        # 3. 添加所有更改
+        # 3. 只添加指定的脚本文件，而不是所有更改
         print("\n添加更改...")
-        success, output = run_command("git add .")
-        if not success:
-            print(f"❌ 添加失败: {output}")
-            return False
+        script_files = [
+            "api_capture.py",
+            "github_push.py",
+            "update.bat",
+            "README.md",
+            "requirements.txt",
+            "update.py",
+            "utilities.py"
+        ]
+        
+        # 逐个添加文件
+        for file in script_files:
+            if os.path.exists(file):
+                success, output = run_command(f'git add "{file}"')
+                if not success:
+                    print(f"❌ 添加文件 {file} 失败: {output}")
         
         # 4. 检查是否有更改
         success, status = run_command("git status --porcelain")
@@ -131,7 +143,13 @@ def update_project(commit_message="更新代码"):
             success, output = run_command("git push -u origin main")
             if not success:
                 print(f"❌ 推送失败: {output}")
-                return False
+                # 尝试使用凭据助手
+                print("尝试使用凭据助手...")
+                run_command('git config --global credential.helper wincred')
+                success, output = run_command("git push -u origin main")
+                if not success:
+                    print(f"❌ 推送失败: {output}")
+                    return False
         print("✅ 推送成功")
         
         # 7. 恢复原始URL
