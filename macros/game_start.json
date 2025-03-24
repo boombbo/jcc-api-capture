@@ -1,0 +1,74 @@
+{
+    "name": "game_start",
+    "description": "激活开发者模式并点击开始游戏按钮",
+    "created_at": "2024-03-20T10:00:00",
+    "updated_at": "2024-03-20T10:00:00",
+    "actions": [
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "激活开发者模式 1/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "激活开发者模式 2/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "激活开发者模式 3/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "激活开发者模式 4/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 1.0,
+            "description": "激活开发者模式 5/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 800,
+                "y": 785,
+                "button": "left",
+                "double": false
+            },
+            "delay": 1.0,
+            "description": "点击开始游戏按钮"
+        }
+    ]
+}

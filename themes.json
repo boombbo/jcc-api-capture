@@ -1,0 +1,47 @@
+{
+  "dark_themes": [
+    "dark_amber",
+    "dark_blue",
+    "dark_cyan",
+    "dark_lightgreen",
+    "dark_medical",
+    "dark_pink",
+    "dark_purple",
+    "dark_red",
+    "dark_teal",
+    "dark_yellow"
+  ],
+  "light_themes": [
+    "light_amber",
+    "light_blue",
+    "light_blue_500",
+    "light_cyan",
+    "light_cyan_500",
+    "light_lightgreen",
+    "light_lightgreen_500",
+    "light_orange",
+    "light_pink",
+    "light_pink_500",
+    "light_purple",
+    "light_purple_500",
+    "light_red",
+    "light_red_500",
+    "light_teal",
+    "light_teal_500",
+    "light_yellow"
+  ],
+  "default_theme": "dark_teal",
+  "default_extra": {
+    "danger": "#dc3545",
+    "warning": "#ffc107",
+    "success": "#17a2b8",
+    "font_family": "Roboto",
+    "font_size": "13px",
+    "line_height": "13px",
+    "density_scale": "0",
+    "QMenu": {
+      "height": 40,
+      "padding": "8px 8px 8px 8px"
+    }
+  }
+}

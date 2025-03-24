@@ -1,0 +1,212 @@
+{
+    "name": "macro_templates",
+    "description": "MuMu模拟器12标准宏按键配置模板集合",
+    "created_at": "2024-03-20T10:00:00",
+    "updated_at": "2024-03-20T10:00:00",
+    "templates": {
+        "multi_touch": {
+            "name": "多点触控",
+            "description": "同时点击多个位置",
+            "actions": [
+                {
+                    "type": "click",
+                    "params": "153,867 181,882 217,877 251,875 282,874",
+                    "delay": 0.3,
+                    "description": "同时点击5个位置"
+                }
+            ]
+        },
+        "slide": {
+            "name": "滑动操作",
+            "description": "从起点滑动到终点",
+            "actions": [
+                {
+                    "type": "press",
+                    "params": "217,781",
+                    "delay": 0.1,
+                    "description": "按下起点"
+                },
+                {
+                    "type": "move",
+                    "params": "79,737",
+                    "delay": 0.1,
+                    "description": "移动到第一个中间点"
+                },
+                {
+                    "type": "move",
+                    "params": "220,733",
+                    "delay": 0.1,
+                    "description": "移动到第二个中间点"
+                },
+                {
+                    "type": "move",
+                    "params": "263,822",
+                    "delay": 0.1,
+                    "description": "移动到第三个中间点"
+                },
+                {
+                    "type": "move",
+                    "params": "159,749",
+                    "delay": 0.1,
+                    "description": "移动到终点"
+                },
+                {
+                    "type": "release_all",
+                    "params": "",
+                    "delay": 0.1,
+                    "description": "释放所有触控"
+                }
+            ]
+        },
+        "hold_click_loop": {
+            "name": "按住循环点击",
+            "description": "按住时持续点击指定位置",
+            "actions": [
+                {
+                    "type": "loop",
+                    "params": "until_release",
+                    "delay": 0,
+                    "description": "开始循环直到释放"
+                },
+                {
+                    "type": "click",
+                    "params": "217,781",
+                    "delay": 0.05,
+                    "description": "点击指定位置"
+                },
+                {
+                    "type": "loop_end",
+                    "params": "",
+                    "delay": 0,
+                    "description": "结束循环"
+                }
+            ]
+        },
+        "hold_release_click": {
+            "name": "按住点击与松开点击",
+            "description": "按住时点击一个位置，松开时点击另一个位置",
+            "actions": [
+                {
+                    "type": "click",
+                    "params": "217,781",
+                    "delay": 0.3,
+                    "description": "按下时点击位置1"
+                },
+                {
+                    "type": "release_actions",
+                    "params": "",
+                    "delay": 0,
+                    "description": "以下动作在松开时执行"
+                },
+                {
+                    "type": "click",
+                    "params": "79,737",
+                    "delay": 0.3,
+                    "description": "松开时点击位置2"
+                }
+            ]
+        },
+        "crosshair_control": {
+            "name": "准星控制",
+            "description": "按住时退出准星，松开时进入准星",
+            "actions": [
+                {
+                    "type": "exit_staring",
+                    "params": "",
+                    "delay": 0.1,
+                    "description": "退出准星模式"
+                },
+                {
+                    "type": "release_actions",
+                    "params": "",
+                    "delay": 0.1,
+                    "description": "以下动作在松开时执行"
+                },
+                {
+                    "type": "enter_staring",
+                    "params": "",
+                    "delay": 0.1,
+                    "description": "进入准星模式"
+                }
+            ]
+        },
+        "key_combination": {
+            "name": "按键组合",
+            "description": "连续按下多个按键",
+            "actions": [
+                {
+                    "type": "key_press",
+                    "params": "q",
+                    "delay": 0.1,
+                    "description": "按下Q键"
+                },
+                {
+                    "type": "key_release",
+                    "params": "q",
+                    "delay": 0.1,
+                    "description": "释放Q键"
+                },
+                {
+                    "type": "key_press",
+                    "params": "w",
+                    "delay": 0.1,
+                    "description": "按下W键"
+                },
+                {
+                    "type": "key_release",
+                    "params": "w",
+                    "delay": 0.1,
+                    "description": "释放W键"
+                }
+            ]
+        },
+        "mouse_lock": {
+            "name": "鼠标锁定",
+            "description": "锁定鼠标在模拟器范围内",
+            "actions": [
+                {
+                    "type": "mouselocked_switch",
+                    "params": "",
+                    "delay": 0,
+                    "description": "切换鼠标锁定状态"
+                }
+            ]
+        },
+        "radius_control_click": {
+            "name": "轮盘半径点按切换",
+            "description": "点按触发轮盘半径变化",
+            "actions": [
+                {
+                    "type": "swipehold_radius_increased_switch",
+                    "params": "1.5",
+                    "delay": 0,
+                    "description": "切换到1.5倍半径"
+                }
+            ]
+        },
+        "radius_control_hold": {
+            "name": "轮盘半径长按切换",
+            "description": "长按切换轮盘半径，松开恢复",
+            "actions": [
+                {
+                    "type": "swipehold_radius_increased_switch",
+                    "params": "1.5",
+                    "delay": 0,
+                    "description": "切换到1.5倍半径"
+                },
+                {
+                    "type": "release_actions",
+                    "params": "",
+                    "delay": 0,
+                    "description": "以下动作在松开时执行"
+                },
+                {
+                    "type": "swipehold_radius_increased_switch",
+                    "params": "1",
+                    "delay": 0,
+                    "description": "恢复到原始半径"
+                }
+            ]
+        }
+    }
+}

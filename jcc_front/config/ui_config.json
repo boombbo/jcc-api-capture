@@ -1,0 +1,1596 @@
+{
+    "ui_settings": {
+        "window": {
+            "width": 800,
+            "height": 600,
+            "theme": "dark",
+            "language": "zh_CN"
+        },
+        "refresh_interval": 1000,
+        "table_row_height": 30,
+        "max_log_lines": 1000
+    },
+    "log": {
+        "level": "INFO",
+        "max_days": 7,
+        "max_lines": 1000,
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "settings_mapping": {
+        "emulator_settings": {
+            "apk_association": {
+                "ui_field": "apk_association_switch",
+                "config_path": "emulator.settings.apk_association",
+                "type": "boolean"
+            },
+            "gpu_mode": {
+                "ui_field": "gpu_mode_select",
+                "config_path": "emulator.settings.gpu_mode",
+                "type": "enum",
+                "values": [
+                    "low",
+                    "middle",
+                    "high"
+                ]
+            }
+        }
+    },
+    "config_auto_complete": {
+        "enabled": true,
+        "field_corrections": {
+            "apk_asscciation": "apk_association"
+        },
+        "port_validation": {
+            "pattern": "^(\\d{1,3}\\.){3}\\d{1,3}:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4})$"
+        }
+    },
+    "features": {
+        "emulator_management": {
+            "name": "模拟器管理",
+            "icon": "emulator",
+            "category": "基础管理",
+            "description": "管理模拟器的创建、删除、导入导出等基础操作",
+            "items": [
+                {
+                    "id": "info",
+                    "name": "获取模拟器信息",
+                    "icon": "info",
+                    "description": "获取指定模拟器的详细信息，包括状态、配置等",
+                    "sub_items": [
+                        {
+                            "id": "info_single",
+                            "name": "获取指定模拟器信息",
+                            "description": "获取单个指定索引模拟器的详细信息",
+                            "command": "info -v {index}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "模拟器索引号",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回模拟器详细信息",
+                                "fields": {
+                                    "adb_host_ip": "string",
+                                    "adb_port": "int",
+                                    "created_timestamp": "int64",
+                                    "disk_size_bytes": "int64",
+                                    "error_code": "int",
+                                    "headless_pid": "int",
+                                    "hyperv_enabled": "boolean",
+                                    "index": "string",
+                                    "is_android_started": "boolean",
+                                    "is_main": "boolean",
+                                    "is_process_started": "boolean",
+                                    "launch_err_code": "int",
+                                    "launch_err_msg": "string",
+                                    "main_wnd": "string",
+                                    "name": "string",
+                                    "pid": "int",
+                                    "player_state": "string",
+                                    "render_wnd": "string",
+                                    "vt_enabled": "boolean"
+                                }
+                            }
+                        },
+                        {
+                            "id": "info_multiple",
+                            "name": "获取多个模拟器信息",
+                            "description": "获取多个指定索引模拟器的详细信息",
+                            "command": "info -v {indexes}",
+                            "params": [
+                                {
+                                    "name": "indexes",
+                                    "type": "array",
+                                    "description": "模拟器索引号数组，如：0,2,4",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回多个模拟器信息数组",
+                                "fields": {
+                                    "emulators": {
+                                        "type": "array",
+                                        "items": "emulator_info"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "info_all",
+                            "name": "获取所有模拟器信息",
+                            "description": "获取所有模拟器的详细信息",
+                            "command": "info -v all",
+                            "output": {
+                                "type": "json",
+                                "description": "返回所有模拟器信息数组",
+                                "fields": {
+                                    "emulators": {
+                                        "type": "array",
+                                        "items": "emulator_info"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "create",
+                    "name": "创建模拟器",
+                    "icon": "add",
+                    "description": "创建新的模拟器实例",
+                    "sub_items": [
+                        {
+                            "id": "create_single",
+                            "name": "创建单个模拟器",
+                            "description": "创建一个新的模拟器，索引自动分配",
+                            "command": "create",
+                            "output": {
+                                "type": "json",
+                                "description": "返回创建结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "index": "int",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "create_batch",
+                            "name": "批量创建模拟器",
+                            "description": "批量创建多个模拟器，索引自动分配",
+                            "command": "create -n {count}",
+                            "params": [
+                                {
+                                    "name": "count",
+                                    "type": "int",
+                                    "description": "要创建的模拟器数量",
+                                    "required": true,
+                                    "min": 1,
+                                    "max": 100
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回批量创建结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "indexes": "array",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "create_index",
+                            "name": "指定索引创建",
+                            "description": "在指定索引位置创建模拟器",
+                            "command": "create -v {index}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要创建的模拟器索引",
+                                    "required": true,
+                                    "min": 0
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回创建结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "clone",
+                    "name": "复制模拟器",
+                    "icon": "copy",
+                    "description": "复制现有模拟器创建新实例",
+                    "sub_items": [
+                        {
+                            "id": "clone_single",
+                            "name": "复制指定模拟器",
+                            "description": "复制单个指定索引的模拟器",
+                            "command": "clone -v {index}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要复制的模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回复制结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "new_index": "int",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "clone_batch",
+                            "name": "批量复制模拟器",
+                            "description": "复制指定模拟器并创建多个副本",
+                            "command": "clone -v {index} -n {count}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要复制的模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "count",
+                                    "type": "int",
+                                    "description": "要创建的副本数量",
+                                    "required": true,
+                                    "min": 1,
+                                    "max": 100
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回批量复制结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "new_indexes": "array",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "delete",
+                    "name": "删除模拟器",
+                    "icon": "delete",
+                    "description": "删除指定的模拟器实例",
+                    "sub_items": [
+                        {
+                            "id": "delete_single",
+                            "name": "删除指定模拟器",
+                            "description": "删除单个指定索引的模拟器",
+                            "command": "delete -v {index}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要删除的模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回删除结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "delete_multiple",
+                            "name": "删除多个模拟器",
+                            "description": "删除多个指定索引的模拟器",
+                            "command": "delete -v {indexes}",
+                            "params": [
+                                {
+                                    "name": "indexes",
+                                    "type": "array",
+                                    "description": "要删除的模拟器索引数组",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回批量删除结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "results": {
+                                        "type": "array",
+                                        "items": {
+                                            "index": "int",
+                                            "success": "boolean",
+                                            "message": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "delete_all",
+                            "name": "删除所有模拟器",
+                            "description": "删除所有模拟器实例",
+                            "command": "delete -v all",
+                            "output": {
+                                "type": "json",
+                                "description": "返回删除结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "deleted_count": "int",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "rename",
+                    "name": "重命名模拟器",
+                    "icon": "edit",
+                    "description": "修改模拟器的显示名称",
+                    "command": "rename -v {index} -n {name}",
+                    "params": [
+                        {
+                            "name": "index",
+                            "type": "int",
+                            "description": "要重命名的模拟器索引",
+                            "required": true
+                        },
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "description": "新的模拟器名称",
+                            "required": true,
+                            "max_length": 50
+                        }
+                    ],
+                    "output": {
+                        "type": "json",
+                        "description": "返回重命名结果",
+                        "fields": {
+                            "success": "boolean",
+                            "message": "string"
+                        }
+                    }
+                },
+                {
+                    "id": "import",
+                    "name": "导入模拟器",
+                    "icon": "import",
+                    "description": "从备份文件导入模拟器",
+                    "sub_items": [
+                        {
+                            "id": "import_single",
+                            "name": "单文件导入",
+                            "description": "从单个备份文件导入模拟器",
+                            "command": "import -p {path}",
+                            "params": [
+                                {
+                                    "name": "path",
+                                    "type": "string",
+                                    "description": "备份文件路径(.mumudata)",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回导入结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "new_index": "int",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "import_multiple",
+                            "name": "多文件导入",
+                            "description": "从多个备份文件导入模拟器",
+                            "command": "import -p {paths}",
+                            "params": [
+                                {
+                                    "name": "paths",
+                                    "type": "array",
+                                    "description": "备份文件路径数组",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回批量导入结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "new_indexes": "array",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "import_batch",
+                            "name": "批量导入",
+                            "description": "从单个备份文件批量导入多个模拟器",
+                            "command": "import -p {path} -n {count}",
+                            "params": [
+                                {
+                                    "name": "path",
+                                    "type": "string",
+                                    "description": "备份文件路径",
+                                    "required": true
+                                },
+                                {
+                                    "name": "count",
+                                    "type": "int",
+                                    "description": "要导入的数量",
+                                    "required": true,
+                                    "min": 1,
+                                    "max": 100
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回批量导入结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "new_indexes": "array",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "export",
+                    "name": "备份模拟器",
+                    "icon": "export",
+                    "description": "将模拟器导出为备份文件",
+                    "sub_items": [
+                        {
+                            "id": "export_single",
+                            "name": "指定模拟器备份",
+                            "description": "备份单个指定索引的模拟器",
+                            "command": "export -v {index} -d {dir} -n {name}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要备份的模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "dir",
+                                    "type": "string",
+                                    "description": "备份文件保存目录",
+                                    "required": true
+                                },
+                                {
+                                    "name": "name",
+                                    "type": "string",
+                                    "description": "备份文件名称",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回备份结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "file_path": "string",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "export_multiple",
+                            "name": "多模拟器备份",
+                            "description": "备份多个指定索引的模拟器",
+                            "command": "export -v {indexes} -d {dir} -n {name}",
+                            "params": [
+                                {
+                                    "name": "indexes",
+                                    "type": "array",
+                                    "description": "要备份的模拟器索引数组",
+                                    "required": true
+                                },
+                                {
+                                    "name": "dir",
+                                    "type": "string",
+                                    "description": "备份文件保存目录",
+                                    "required": true
+                                },
+                                {
+                                    "name": "name",
+                                    "type": "string",
+                                    "description": "备份文件名称",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回批量备份结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "file_paths": "array",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "export_compressed",
+                            "name": "压缩格式备份",
+                            "description": "以压缩格式备份多个模拟器",
+                            "command": "export -v {indexes} -d {dir} -n {name} --zip",
+                            "params": [
+                                {
+                                    "name": "indexes",
+                                    "type": "array",
+                                    "description": "要备份的模拟器索引数组",
+                                    "required": true
+                                },
+                                {
+                                    "name": "dir",
+                                    "type": "string",
+                                    "description": "备份文件保存目录",
+                                    "required": true
+                                },
+                                {
+                                    "name": "name",
+                                    "type": "string",
+                                    "description": "备份文件名称",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回压缩备份结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "file_path": "string",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "emulator_control": {
+            "name": "模拟器控制",
+            "icon": "control",
+            "category": "运行控制",
+            "description": "控制模拟器的启动、关闭、窗口和应用管理",
+            "items": [
+                {
+                    "id": "basic_control",
+                    "name": "基础控制",
+                    "description": "模拟器的基本控制功能",
+                    "sub_items": [
+                        {
+                            "id": "launch",
+                            "name": "启动模拟器",
+                            "description": "启动指定索引的模拟器",
+                            "command": "control -v {index} launch",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要启动的模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回启动结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "pid": "int",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "launch_with_app",
+                            "name": "启动并运行应用",
+                            "description": "启动模拟器并自动运行指定应用",
+                            "command": "control -v {index} launch -pkg {package}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要启动的模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "package",
+                                    "type": "string",
+                                    "description": "要启动的应用包名",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回启动结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "pid": "int",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "shutdown",
+                            "name": "关闭模拟器",
+                            "description": "关闭指定索引的模拟器",
+                            "command": "control -v {index} shutdown",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要关闭的模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回关闭结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "restart",
+                            "name": "重启模拟器",
+                            "description": "重启指定索引的模拟器",
+                            "command": "control -v {index} restart",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要重启的模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回重启结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "pid": "int",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "window_control",
+                    "name": "窗口控制",
+                    "description": "控制模拟器窗口的显示和布局",
+                    "sub_items": [
+                        {
+                            "id": "show_window",
+                            "name": "显示窗口",
+                            "description": "显示指定模拟器的窗口",
+                            "command": "control -v {index} show_window",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要显示的模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回显示结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "hide_window",
+                            "name": "隐藏窗口",
+                            "description": "隐藏指定模拟器的窗口",
+                            "command": "control -v {index} hide_window",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要隐藏的模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回隐藏结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "layout_window",
+                            "name": "设置窗口位置和大小",
+                            "description": "设置模拟器窗口的位置和大小",
+                            "command": "control -v {index} layout_window -px {x} -py {y} -sw {width} -sh {height}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "要设置的模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "x",
+                                    "type": "int",
+                                    "description": "窗口X坐标",
+                                    "required": true
+                                },
+                                {
+                                    "name": "y",
+                                    "type": "int",
+                                    "description": "窗口Y坐标",
+                                    "required": true
+                                },
+                                {
+                                    "name": "width",
+                                    "type": "int",
+                                    "description": "窗口宽度",
+                                    "required": true
+                                },
+                                {
+                                    "name": "height",
+                                    "type": "int",
+                                    "description": "窗口高度",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "app_management",
+                    "name": "应用管理",
+                    "description": "管理模拟器中的应用安装、卸载和运行",
+                    "sub_items": [
+                        {
+                            "id": "install_app",
+                            "name": "安装应用",
+                            "description": "在模拟器中安装指定应用",
+                            "command": "control -v {index} app install -apk {path}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "path",
+                                    "type": "string",
+                                    "description": "APK文件路径",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回安装结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "uninstall_app",
+                            "name": "卸载应用",
+                            "description": "从模拟器中卸载指定应用",
+                            "command": "control -v {index} app uninstall -pkg {package}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "package",
+                                    "type": "string",
+                                    "description": "要卸载的应用包名",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回卸载结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "launch_app",
+                            "name": "启动应用",
+                            "description": "在模拟器中启动指定应用",
+                            "command": "control -v {index} app launch -pkg {package}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "package",
+                                    "type": "string",
+                                    "description": "要启动的应用包名",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回启动结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "close_app",
+                            "name": "关闭应用",
+                            "description": "关闭模拟器中运行的应用",
+                            "command": "control -v {index} app close -pkg {package}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "package",
+                                    "type": "string",
+                                    "description": "要关闭的应用包名",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回关闭结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "app_info",
+                            "name": "获取应用信息",
+                            "description": "获取模拟器中应用的详细信息",
+                            "command": "control -v {index} app info -pkg {package}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "package",
+                                    "type": "string",
+                                    "description": "要查询的应用包名",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回应用信息",
+                                "fields": {
+                                    "success": "boolean",
+                                    "info": {
+                                        "state": "string",
+                                        "version": "string",
+                                        "size": "int64"
+                                    },
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "emulator_settings": {
+            "name": "模拟器配置",
+            "icon": "settings",
+            "category": "系统配置",
+            "description": "配置模拟器的显示、性能、网络等系统设置",
+            "items": [
+                {
+                    "id": "display_settings",
+                    "name": "显示设置",
+                    "description": "配置模拟器的显示相关参数",
+                    "sub_items": [
+                        {
+                            "id": "resolution",
+                            "name": "分辨率设置",
+                            "description": "设置模拟器的显示分辨率",
+                            "command": "setting -v {index} -k resolution_mode -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "description": "分辨率模式",
+                                    "required": true,
+                                    "enum": [
+                                        "phone",
+                                        "tablet.1",
+                                        "custom"
+                                    ]
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "frame_rate",
+                            "name": "帧率设置",
+                            "description": "设置模拟器的最大帧率",
+                            "command": "setting -v {index} -k max_frame_rate -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "int",
+                                    "description": "最大帧率值",
+                                    "required": true,
+                                    "min": 1,
+                                    "max": 120
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "gpu_mode",
+                            "name": "GPU设置",
+                            "description": "设置模拟器的GPU渲染模式",
+                            "command": "setting -v {index} -k gpu_mode -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "description": "GPU模式",
+                                    "required": true,
+                                    "enum": [
+                                        "low",
+                                        "middle",
+                                        "high"
+                                    ]
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "brightness",
+                            "name": "画面亮度",
+                            "description": "设置模拟器的画面亮度",
+                            "command": "setting -v {index} -k screen_brightness -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "int",
+                                    "description": "亮度值",
+                                    "required": true,
+                                    "min": 0,
+                                    "max": 100
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "performance_settings",
+                    "name": "性能设置",
+                    "description": "配置模拟器的性能相关参数",
+                    "sub_items": [
+                        {
+                            "id": "cpu_config",
+                            "name": "CPU配置",
+                            "description": "设置模拟器的CPU核心数",
+                            "command": "setting -v {index} -k performance_cpu.custom -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "int",
+                                    "description": "CPU核心数",
+                                    "required": true,
+                                    "min": 1,
+                                    "max": 8
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "memory_config",
+                            "name": "内存配置",
+                            "description": "设置模拟器的内存大小",
+                            "command": "setting -v {index} -k performance_mem.custom -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "float",
+                                    "description": "内存大小(GB)",
+                                    "required": true,
+                                    "min": 1,
+                                    "max": 16
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "performance_mode",
+                            "name": "性能模式",
+                            "description": "设置模拟器的性能模式",
+                            "command": "setting -v {index} -k performance_mode -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "description": "性能模式",
+                                    "required": true,
+                                    "enum": [
+                                        "low",
+                                        "middle",
+                                        "high"
+                                    ]
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "network_settings",
+                    "name": "网络设置",
+                    "description": "配置模拟器的网络相关参数",
+                    "sub_items": [
+                        {
+                            "id": "bridge_network",
+                            "name": "桥接网络",
+                            "description": "设置模拟器的网络桥接模式",
+                            "command": "setting -v {index} -k net_bridge_open -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "boolean",
+                                    "description": "是否开启桥接",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "dns_settings",
+                            "name": "DNS设置",
+                            "description": "设置模拟器的DNS服务器",
+                            "command": "setting -v {index} -k net_bridge_dns1 -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "description": "DNS服务器地址",
+                                    "required": true,
+                                    "pattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$"
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "device_settings",
+                    "name": "机型设置",
+                    "description": "配置模拟器的设备相关参数",
+                    "sub_items": [
+                        {
+                            "id": "phone_brand",
+                            "name": "手机品牌",
+                            "description": "设置模拟器的手机品牌",
+                            "command": "setting -v {index} -k phone_brand -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "description": "手机品牌名称",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "phone_model",
+                            "name": "手机型号",
+                            "description": "设置模拟器的手机型号",
+                            "command": "setting -v {index} -k phone_model -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "description": "手机型号名称",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "imei",
+                            "name": "IMEI设置",
+                            "description": "设置模拟器的IMEI号码",
+                            "command": "setting -v {index} -k phone_imei -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "description": "IMEI号码",
+                                    "required": true,
+                                    "pattern": "^\\d{15}$"
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "other_settings",
+                    "name": "其他设置",
+                    "description": "配置模拟器的其他系统参数",
+                    "sub_items": [
+                        {
+                            "id": "root_permission",
+                            "name": "ROOT权限",
+                            "description": "设置模拟器的ROOT权限",
+                            "command": "setting -v {index} -k root_permission -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "boolean",
+                                    "description": "是否开启ROOT",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "system_sound",
+                            "name": "系统声音",
+                            "description": "设置模拟器的系统声音",
+                            "command": "setting -v {index} -k system_volume_close -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "boolean",
+                                    "description": "是否关闭系统声音",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "quit_confirm",
+                            "name": "退出确认",
+                            "description": "设置模拟器的退出确认",
+                            "command": "setting -v {index} -k quit_confirm -val {value}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "目标模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "boolean",
+                                    "description": "是否开启退出确认",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回设置结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "adb_tools": {
+            "name": "ADB工具",
+            "icon": "terminal",
+            "category": "系统工具",
+            "description": "ADB命令和Shell操作工具",
+            "items": [
+                {
+                    "id": "quick_commands",
+                    "name": "快捷命令",
+                    "icon": "flash",
+                    "description": "常用ADB命令快捷操作",
+                    "sub_items": [
+                        {
+                            "id": "input_text",
+                            "name": "文本输入",
+                            "description": "向模拟器输入文本",
+                            "command": "adb -v {index} -c input_text {text}",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "模拟器索引",
+                                    "required": true
+                                },
+                                {
+                                    "name": "text",
+                                    "type": "string",
+                                    "description": "要输入的文本",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回执行结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "connect",
+                            "name": "连接设备",
+                            "description": "连接到模拟器ADB",
+                            "command": "adb -v {index} -c connect",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回连接结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        },
+                        {
+                            "id": "disconnect",
+                            "name": "断开连接",
+                            "description": "断开模拟器ADB连接",
+                            "command": "adb -v {index} -c disconnect",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "模拟器索引",
+                                    "required": true
+                                }
+                            ],
+                            "output": {
+                                "type": "json",
+                                "description": "返回断开结果",
+                                "fields": {
+                                    "success": "boolean",
+                                    "message": "string"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "system_keys",
+                    "name": "系统按键",
+                    "icon": "keyboard",
+                    "description": "模拟系统按键操作",
+                    "sub_items": [
+                        {
+                            "id": "go_back",
+                            "name": "返回键",
+                            "description": "模拟按下返回键",
+                            "command": "adb -v {index} -c go_back",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "模拟器索引",
+                                    "required": true
+                                }
+                            ]
+                        },
+                        {
+                            "id": "go_home",
+                            "name": "主页键",
+                            "description": "模拟按下主页键",
+                            "command": "adb -v {index} -c go_home",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "模拟器索引",
+                                    "required": true
+                                }
+                            ]
+                        },
+                        {
+                            "id": "go_task",
+                            "name": "任务键",
+                            "description": "模拟按下任务键",
+                            "command": "adb -v {index} -c go_task",
+                            "params": [
+                                {
+                                    "name": "index",
+                                    "type": "int",
+                                    "description": "模拟器索引",
+                                    "required": true
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "shell_command",
+                    "name": "Shell命令",
+                    "icon": "code",
+                    "description": "执行自定义Shell命令",
+                    "command": "adb -v {index} -c \"{command}\"",
+                    "params": [
+                        {
+                            "name": "index",
+                            "type": "int",
+                            "description": "模拟器索引",
+                            "required": true
+                        },
+                        {
+                            "name": "command",
+                            "type": "string",
+                            "description": "要执行的Shell命令",
+                            "required": true
+                        }
+                    ],
+                    "output": {
+                        "type": "json",
+                        "description": "返回执行结果",
+                        "fields": {
+                            "success": "boolean",
+                            "output": "string",
+                            "error": "string"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

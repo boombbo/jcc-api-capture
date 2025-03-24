@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "QtThemeHub"
+version = "0.1.0"
+description = "跨Qt绑定的主题管理解决方案"
+readme = "README.md"
+authors = [{name = "QtThemeHub Contributors", email = "example@example.com"}]
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
+]
+keywords = ["qt", "theme", "style", "pyqt", "pyside", "qtpy"]
+dependencies = ["qtpy>=2.0.0"]
+requires-python = ">=3.7"
+
+    [project.optional-dependencies]
+    dev = [
+        "pytest>=6.0",
+        "pytest-qt>=4.0.0",
+        "black>=22.0.0",
+        "isort>=5.0.0",
+        "mypy>=0.900",
+    ]
+    themes = ["qdarkstyle>=3.0.0", "pyqtdarktheme>=2.0.0", "qt-material>=2.0.0"]
+    all = [
+        "qtpy>=2.0.0",
+        "qdarkstyle>=3.0.0",
+        "pyqtdarktheme>=2.0.0",
+        "qt-material>=2.0.0",
+    ]
+
+    [project.urls]
+    "Homepage" = "https://github.com/yourusername/QtThemeHub"
+    "Bug Tracker" = "https://github.com/yourusername/QtThemeHub/issues"
+
+[tool.setuptools]
+packages = ["QtThemeHub"]
+
+[tool.black]
+line-length = 88
+target-version = ["py37", "py38", "py39", "py310", "py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true

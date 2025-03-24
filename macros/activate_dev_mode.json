@@ -1,0 +1,63 @@
+{
+    "name": "activate_dev_mode",
+    "description": "激活开发者模式 - 连续点击版本号5次",
+    "created_at": "2024-03-20T10:00:00",
+    "updated_at": "2024-03-20T10:00:00",
+    "actions": [
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "点击版本号 1/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "点击版本号 2/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "点击版本号 3/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "点击版本号 4/5"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 137,
+                "y": 98,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.3,
+            "description": "点击版本号 5/5"
+        }
+    ]
+}

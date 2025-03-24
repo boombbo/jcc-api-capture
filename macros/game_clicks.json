@@ -1,0 +1,30 @@
+{
+    "name": "game_clicks",
+    "description": "游戏中的多个点击操作",
+    "created_at": "2024-03-20T10:00:00",
+    "updated_at": "2024-03-20T10:00:00",
+    "actions": [
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 443,
+                "y": 540,
+                "button": "left",
+                "double": false
+            },
+            "delay": 1.0,
+            "description": "点击第一个位置"
+        },
+        {
+            "type": "mouse_click",
+            "params": {
+                "x": 500,
+                "y": 600,
+                "button": "left",
+                "double": false
+            },
+            "delay": 0.5,
+            "description": "点击第二个位置"
+        }
+    ]
+}
