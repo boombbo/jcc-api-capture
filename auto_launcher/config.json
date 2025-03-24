@@ -1,0 +1,21 @@
+{
+    "exe_name": "wuyanzhengma.exe",
+    "max_cpu_percent": 80.0,
+    "max_memory_percent": 80.0,
+    "check_interval": 10,
+    "max_instances": 50,
+    "launch_params": "clientNumber: 50 headless: 1 target: shop delta: shop wait: 0",
+    "safe_threshold": 0.2,
+    "test_duration": 15,
+    "sample_interval": 1,
+    "max_retries": 3,
+    "max_sample_time": 2.0,
+    "logging": {
+        "level": "INFO",
+        "max_size_mb": 10,
+        "backup_count": 5,
+        "format": "%(asctime)s [%(levelname)s] %(message)s",
+        "console_level": "INFO",
+        "file_level": "DEBUG"
+    }
+}
